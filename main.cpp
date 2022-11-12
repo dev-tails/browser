@@ -2,6 +2,7 @@
 #include <regex>
 #include <string>
 #include <vector>
+#include <curl/curl.h>
 
 using namespace std;
 
@@ -85,22 +86,54 @@ typedef struct Node
   string text;
 } Node;
 
+struct memory
+{
+  char *response;
+  size_t size;
+};
+
+static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct memory *mem = (struct memory *)userp;
+
+  char *ptr = (char *) realloc(mem->response, mem->size + realsize + 1);
+  if (ptr == NULL)
+    return 0; /* out of memory! */
+
+  mem->response = ptr;
+  memcpy(&(mem->response[mem->size]), data, realsize);
+  mem->size += realsize;
+  mem->response[mem->size] = 0;
+
+  return realsize;
+}
+
 void render()
 {
   clear();
 
-  SDL_RWops *file = SDL_RWFromFile("index.html", "r");
-  char buf[1024 * 40];
-  SDL_RWread(file, buf, sizeof(buf), 1);
-  SDL_RWclose(file);
+  CURL *curl_handle = curl_easy_init();
 
-  vector<Node> nodes;
+  curl_easy_setopt(curl_handle, CURLOPT_URL, "https://devtails.xyz/breadth-first-search-a-walk-in-the-park");
+  struct memory chunk = {0};
 
-  string tag = buf;
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, cb);
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+  CURLcode res = curl_easy_perform(curl_handle);
+
+  cout << "Returned " << res << endl;
+  if (res != CURLE_OK)
+  {
+    fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
+  }
+  curl_easy_cleanup(curl_handle);
+
+  string response_text = string(chunk.response);
 
   std::regex tag_regex("<(h\\d|p).*>(.*)</(h\\d|p)>");
   auto words_begin =
-      std::sregex_iterator(tag.begin(), tag.end(), tag_regex);
+      std::sregex_iterator(response_text.begin(), response_text.end(), tag_regex);
   auto words_end = std::sregex_iterator();
 
   SDL_Color color = {255, 255, 255};

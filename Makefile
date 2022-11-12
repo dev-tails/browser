@@ -1,5 +1,5 @@
 CC = c++
-CFLAGS = -Wall -I /opt/homebrew/include
+CFLAGS = -Wall -I /opt/homebrew/include -lcurl
 TARGET = browser
 
 LDFLAGS = `pkg-config --libs --static SDL2 SDL2_ttf`
