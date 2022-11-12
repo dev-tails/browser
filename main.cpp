@@ -90,7 +90,7 @@ void render()
   clear();
 
   SDL_RWops *file = SDL_RWFromFile("index.html", "r");
-  char buf[1024];
+  char buf[1024 * 40];
   SDL_RWread(file, buf, sizeof(buf), 1);
   SDL_RWclose(file);
 
@@ -98,7 +98,7 @@ void render()
 
   string tag = buf;
 
-  std::regex tag_regex("<(h\\d|p)>(.*)</(h\\d|p)>");
+  std::regex tag_regex("<(h\\d|p).*>(.*)</(h\\d|p)>");
   auto words_begin =
       std::sregex_iterator(tag.begin(), tag.end(), tag_regex);
   auto words_end = std::sregex_iterator();
@@ -115,7 +115,7 @@ void render()
     TTF_Font *font = tag == "h1" ? font_h1 : font_p;
     int font_size = tag == "h1" ? font_size_h1 : font_size_p;
 
-    SDL_Surface *surface = TTF_RenderText_Blended(font, text.c_str(), color);
+    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 

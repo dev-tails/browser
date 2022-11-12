@@ -1,12 +1,439 @@
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
+<html lang="en"><head>
+  <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <h1>Page Title</h1>
-  <p>Hello world, thanks for coming to my website</p>
-</body>
-</html>
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Breadth-First Search a Walk in the Park | dev/tails</title>
+<meta name="generator" content="Jekyll v3.9.2">
+<meta property="og:title" content="Breadth-First Search a Walk in the Park">
+<meta name="author" content="adam">
+<meta property="og:locale" content="en_US">
+<meta name="description" content="Today I went for a walk, and I’d like to take you along for a ride">
+<meta property="og:description" content="Today I went for a walk, and I’d like to take you along for a ride">
+<link rel="canonical" href="https://devtails.xyz/breadth-first-search-a-walk-in-the-park">
+<meta property="og:url" content="https://devtails.xyz/breadth-first-search-a-walk-in-the-park">
+<meta property="og:site_name" content="dev/tails">
+<meta property="og:image" content="https://devtails.xyz/assets/img/IMG_1161.jpg">
+<meta property="og:type" content="article">
+<meta property="article:published_time" content="2020-09-25T00:00:00+00:00">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="twitter:image" content="https://devtails.xyz/assets/img/IMG_1161.jpg">
+<meta property="twitter:title" content="Breadth-First Search a Walk in the Park">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"adam"},"dateModified":"2020-09-25T00:00:00+00:00","datePublished":"2020-09-25T00:00:00+00:00","description":"Today I went for a walk, and I’d like to take you along for a ride","headline":"Breadth-First Search a Walk in the Park","image":"https://devtails.xyz/assets/img/IMG_1161.jpg","mainEntityOfPage":{"@type":"WebPage","@id":"https://devtails.xyz/breadth-first-search-a-walk-in-the-park"},"url":"https://devtails.xyz/breadth-first-search-a-walk-in-the-park"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@700&amp;display=swap" rel="stylesheet">
+
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="stylesheet" href="/assets/main.css"><link type="application/atom+xml" rel="alternate" href="https://devtails.xyz/feed.xml" title="dev/tails"><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=G-7FN2XPK0FD"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+
+gtag('config', 'G-7FN2XPK0FD');
+</script><style type="text/css">#mc_embed_signup input.mce_inline_error { border-color:#6B0505; } #mc_embed_signup div.mce_inline_error { margin: 0 0 1em 0; padding: 5px 10px; background-color:#6B0505; font-weight: bold; z-index: 1; color:#fff; }</style></head><body style="zoom: 1;"><header class="site-header">
+
+<div class="wrapper"><div class="site-title">/<a href="/">home</a>/<a href="/tags/dev">dev</a>/<a href="/tags/tails">tails</a></div><nav class="site-nav">
+      <input type="checkbox" id="nav-trigger" class="nav-trigger">
+      <label for="nav-trigger">
+        <span class="menu-icon">
+          <svg viewBox="0 0 18 15" width="18px" height="15px">
+            <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+          </svg>
+        </span>
+      </label>
+
+      <div class="trigger"><a class="page-link" href="/about/">About</a><a class="page-link" href="/learn">Learn to Code</a></div>
+    </nav></div>
+</header><main aria-label="Content">
+    <div class="wrapper">
+      <a href="https://kaizen.place/about?utm_source=devtails" style="color: white; text-decoration: none; display: flex; justify-content: center; margin: 8px 0">
+<div style="font-family: Space Mono,monospace; display: flex; align-items: center; justify-content: center; width: 100%; background-color: #393a42; box-shadow: 0 1px 4px 1px hsl(0deg 0% 0% / 10%);">
+  <div style=" text-align: center; padding: 8px">
+    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAyIiBoZWlnaHQ9IjgwMiIgdmlld0JveD0iMCAwIDgwMiA4MDIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2NsaXAwKSI+CiAgICA8ZWxsaXBzZSBjeD0iNDAwLjg2MiIgY3k9IjQwMS4yMDUiIHJ4PSIyODYuMjE4IiByeT0iMjg2LjIwNSIgZmlsbD0iI0Y5M0Y0MyIgLz4KICAgIDxyZWN0IHdpZHRoPSIyOTMuMjY3IiBoZWlnaHQ9IjEyNy42NzQiIHRyYW5zZm9ybT0ibWF0cml4KDAuNzA3MTIzIDAuNzA3MDkxIC0wLjcwNzEyMyAwLjcwNzA5MSA5MC4yODEyIDMxNS42OTEpIiBmaWxsPSIjRjkzRjQzIiAvPgogICAgPGVsbGlwc2UgY3g9IjQwMC44NjMiIGN5PSI0MDEuMjA1IiByeD0iODEuNzc2NiIgcnk9IjgxLjc3MjkiIGZpbGw9IiNGRkRFQ0QiIC8+CiAgPC9nPgogIDxkZWZzPgogICAgPGNsaXBQYXRoIGlkPSJjbGlwMCI+CiAgICAgIDxyZWN0IHdpZHRoPSI4MDIiIGhlaWdodD0iODAyIiBmaWxsPSJ3aGl0ZSIgLz4KICAgIDwvY2xpcFBhdGg+CiAgPC9kZWZzPgo8L3N2Zz4=" width="60" height="60">
+    <div style="color: #f93f43; font-weight: 700; font-size: 18;">Kaizen</div>
+  </div>
+  <div style="margin-left: 8px;">
+    Share more than the music, share the story.
+  </div>
+</div>
+</a>
+      <article class="post h-entry" itemscope="" itemtype="http://schema.org/BlogPosting">
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">Breadth-First Search a Walk in the Park</h1>
+  <span class="post-meta"><span class="mr-1">
+      <a href="/tags/tails">#tails</a>
+    </span></span>
+</header>
+
+<div class="post-content e-content" itemprop="articleBody">
+  <p><img src="/assets/img/IMG_1161.jpg" alt="Dog Park"></p>
+
+<p>Today I went for a walk, and I’d like to take you along for a ride.  All the headings are random thoughts that came to mind while on this walk.  Now, about an hour after this walk, I’m going to attempt to interweave the actual thoughts that linked these all together. If it feels disorganized at times, that is intentional as this is a demonstration of how my brain operates.</p>
+
+<!--more-->
+
+<p>You’re welcome to read it in any way you like, however I recommend scanning the headings first to get the full effect of how this came together chronologically. This is just the first 30 of 120 bullet points from this walk.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Eat our own dog food
+Create category for creating category
+Publish book lightning strike
+Everything crosses over
+Find your why
+Microsoft can’t escape appearance
+Everything is connected
+Went to park
+Guy talking to dog Brady
+Whining to go see the other dogs.
+Thoughts hard to capture
+They happen and then they’re gone
+Is their ADHD?
+Admit to marijuana?
+Several hours to write something that takes less than 10 minutes to read
+Finding the small things
+Experiment to how the world responds
+Prohibition and relation to drugs
+Should we have to worry that things we say are going to destroy our life #cancelculture
+Anonymous commenting?
+Email me directly for now
+Email under rated
+RSS feeds
+Actually feel calm
+Shoulders relaxed
+Knee not entirely painful
+Just want to yell out all the thoughts so I can make them go away
+They excite me and they haunt me at the same time
+Why are dogs happier than humans?
+Why do dogs chase balls?
+Thought bank
+</code></pre></div></div>
+
+<h3 id="eat-our-own-dog-food">Eat our own dog food</h3>
+<p>I started the walk listening to <a href="https://amzn.to/33VoPEi">Play Bigger: How Pirates, Dreamers, and Innovators Create and Dominate Markets</a> on Audible. I was near the end of the book, so I planned to get it finished and then see where my mind decided to wander from there. At the very end of the book, the authors talk about dogfooding their own “methods”. Without getting in to too much detail, the book is about becoming a “Category King” as they call it.  The simplest example I could give would be Uber and ride sharing. Uber created an entirely new category, and became synonomous with the concept of ride sharing. There’s a lot more to it, but that’s enough of a gist for me to move on.</p>
+
+<blockquote>
+<p>dogfooding: the use of a newly developed product or service by a company’s staff to test it before it is made available to customers.</p>
+</blockquote>
+
+<p>This is where the story begins along the way you’ll find some thoughts about dogs, circles, tech companies, ADHD, autism, drugs, AI, mindfulness, at least one app idea, and some thoughts on social media. A final warning and reminder that these thoughts are out of order. I don’t know if you are like me, but that’s how they come for me. In my head they tend to be continuous, but actually extracting them into words is a slow and painful process (I imagine it like Dumbledore and his pensieve).</p>
+
+<p><img src="https://media.giphy.com/media/1BdrmMkllI1e2gdPaS/giphy.gif" alt="Pensieve"></p>
+
+<h3 id="create-category-for-creating-category">Create category for creating category</h3>
+<p>Ok, back to the pirates that wrote the book above. They realized in the middle of planning out this book that what they were doing is building a new business about helping others create a category.  It’s just meta enough for me to appreciate it.</p>
+
+<h3 id="publish-book-lightning-strike">Publish book lightning strike</h3>
+<p>They discuss the concept of a “lightning strike”.  Something that draws a lot of attention to a problem that exists in the world, and positions them as the business that has the solution. If done successfully, the business comes closer to establishing themselves as the “Category King”</p>
+
+<p><img src="/assets/img/lightning.gif" alt="Lightning"></p>
+
+<h3 id="everything-crosses-over">Everything crosses over</h3>
+<p>My brain would like to introduce the next thread of this story. The idea that everything is the same and returns to the same place. Throughout this story, this idea will be conveyed both explicitly and implicitly. Keep an eye out for it in my writing and in the thoughts you inevitably have while reading.</p>
+
+<h3 id="find-your-why">Find your why</h3>
+<p>I’ve been doing a lot more reading than normal lately (it’s becoming my normal, so that’s probably the last time I can say that). <a href="https://amzn.to/2EA5NuD">Start With Why</a> and <a href="https://amzn.to/3cyeuSP">Find Your Why: A Practical Guide for Discovering Purpose for You and Your Team</a> are a couple of books I read earlier this year by Simon Sinek. The concept of category creation is similar to the principles Sinek discusses in these books. Both argue that having a solid reason for doing something will make you a leader in that area.  For Sinek, this is the “why”.  For the pirates, this is the POV (Point of View).  See the <a href="https://www.playbigger.com">play bigger site</a> for a better summary of what they’re talking about.</p>
+
+<h3 id="microsoft-cant-escape-appearance">Microsoft can’t escape appearance</h3>
+<p>Across both books Microsoft is consistently presented as a company that is not a category king and lacking a strong vision. In these kinds of book Apple tends to be the company that receives praise for designing new categories. While I agree this is the social sentiment, I’m not sure if it will continue to hold true. I’m watching Microsoft make some moves that are pretty impressive.  On June 4, 2018, Microsoft <a href="https://blogs.microsoft.com/blog/2018/06/04/microsoft-github-empowering-developers/">announced</a> it was acquiring Github.  On March 16, 2020, just two years later, <a href="https://github.blog/2020-03-16-npm-is-joining-github/">Github buys npm</a>. Shortly after, Microsoft releases the <a href="https://www.forbes.com/sites/kateoflahertyuk/2020/06/21/microsoft-issues-stunning-body-blow-to-chrome-with-bold-new-browser-moves/#3422621f5bb7">new Microsoft Edge browser</a> (now running based on the Chromium engine). This week they announced they were acquring <a href="https://news.microsoft.com/2020/09/21/microsoft-to-acquire-zenimax-media-and-its-game-publisher-bethesda-softworks/">ZeniMax Media</a>, primarily known for the development of The Elder Scrolls and Fallout video game franchises.  The next day they <a href="https://blogs.microsoft.com/blog/2020/09/22/microsoft-teams-up-with-openai-to-exclusively-license-gpt-3-language-model/">announce</a> they teamed up with OpenAI to licence the GPT-3 language model.</p>
+
+<p><img src="https://media.giphy.com/media/CdhxVrdRN4YFi/giphy.gif" alt="Fallout: Please Stand By"></p>
+
+<p>That’s a lot of big new projects happening at Microsoft.  Out of curiousity, I went to check in on the famous annual Apple Event to see what the “King” is up to. Their own <a href="https://www.apple.com/apple-events/september-2020/">recap</a> doesn’t really scream innovation.  We have a new Apple Watch (now with blood oxygen level), and Watch SE, Fitness+, a “new” iPad Air, and Apple One (which is a desparate attempt to catch up to <a href="https://one.google.com/about">Google One</a>).  Will Apple now be crowned the king of wearables, tablets, and the “One” subscription service you need for your digital life?</p>
+
+<p>I don’t disagree with the conclusions of any of the aforementioned books. This stuff really works. What I would argue is as consumers we need to be ready to accept a new king. Particularly in a time where we are having major conversations about tech monopolies - but that’s a story for another time.</p>
+
+<h3 id="everything-is-connected">Everything is connected</h3>
+<p>Just a little reminder that all of this is connected somehow. In the story above, Microsoft has pulled off multiple lightning strikes. We’ve been sufficiently conditioned to ignore them, but they’re picking up speed and it will be interesting where things go from here.  Especially considering they are the company magically sitting outside the conversation about tech monopolies. They’ve fought this battle before, they are one of the few tech companies that has <a href="https://en.wikipedia.org/wiki/United_States_v._Microsoft_Corp.">experience with this</a>. Have they just pulled a fast one over the other tech companies?</p>
+
+<h3 id="went-to-park">Went to park</h3>
+<p>Your brain is maybe on autopilot now.  You didn’t realize until now, but we’ve now walked 2 km to a park. As I’m approaching the park, thoughts are racing. My brain is writing a post (or several), but only shooting out bits at a time. The thoughts come in waves and I realize I’m not able to remember them after they happen because I’ve moved on to another thought too quickly. I take cover from the bombarding thoughts at a bench in the park. My heart rate increases and I pull out my phone to start collecting thoughts.</p>
+
+<p>Silence. Everything stops. I identify how calm I am feeling on that bench. Shoulders not scrunched up.  No cares or worries. Four seconds ago, I was practically running across the street to avoid the bombs being dropped by my own brain. They’ll come back, they always do.</p>
+
+<p><img src="/assets/img/lightning.jpg" alt="Lightning"></p>
+
+<h3 id="guy-talking-to-dog-brady">Guy talking to dog Brady</h3>
+<p>My attention drifts to a man with his dog, Brady.</p>
+
+<h3 id="whining-to-go-see-the-other-dogs">Whining to go see the other dogs.</h3>
+<p>The dog whines, indicating that it wants to go hang out with the other dogs. The man spends some time talking to his dog. Something I definitely do, but in this moment realizing how hilarious it is that the dog at best can only pick up on the owner’s tone. Even I am able to tell from his tone that he’s going to let the dog off the leash. The dog is getting even more excited now, and once the leash is off runs over to either meet his old friends or make new ones.</p>
+
+<p><img src="https://media.giphy.com/media/a1ysEmuQNwkeY/giphy.gif" alt="Dug"></p>
+
+<h3 id="thoughts-hard-to-capture">Thoughts hard to capture</h3>
+<p>This is what I like to call gridlock. The thoughts come in at the same time. I imagine there are all kinds of horrific accidents as they cross paths.</p>
+
+<h3 id="they-happen-and-then-theyre-gone">They happen and then they’re gone</h3>
+<p>Interestingly, I’m able to re-extract some of my thoughts just from re-reading the context around things.</p>
+
+<p>For example, one of the thoughts I missed was about the difference between dogs and humans. As humans, we have developed an interesting relationship with dogs. We love being around dogs and they love being around us. Side note: already hitting that gridlock, which probably means this is a bigger topic than I’m ready to tackle right here. I challenge the reader to imagine treating a human the way we treat dogs. We are (almost) always happy to see dogs. We pet them and hug them. We allow them in to our home and ask pretty much nothing of them. They are fed, washed, groomed, and walked. We pick up their poop for them because they are incapable of doing it themselves. Somehow we are ok with that. What they provide in what can only be described as love and affection makes up for what we go through. I’m tempted to draw some more parallels here, but hopefully you’re already chewing on some of them.</p>
+
+<h3 id="is-their-adhd">Is their ADHD?</h3>
+
+<p><img src="/assets/img/squirrel.jpg" alt="Squirrel">
+<em>Squirrel!</em></p>
+
+<blockquote>
+<p>Remember when this story was about dogfooding. Now I’m at a dog park talking about humans feeding food to their dogs.</p>
+</blockquote>
+
+<p>I left the typo on this one. I was typing on my phone and cannot count the number of times it autocorrects incorrectly. I’ve recently started thinking about ADHD in general. Partially wondering if I have it and partially wondering if we all do. Part of this story is me asking if this is how it goes down for everyone else? I’m pretty sure the answer is no, but I have no idea how your brain works.</p>
+
+<p>I feel like I have two modes of operation.  <a href="https://amzn.to/3iaPjGN">Thinking Fast and Slow</a> comes to mind here. In one, thoughts are just constantly surfaced (or re-surfaced) and I cannot keep my attention on any specific one of them. The other mode, is the one I’m in right now. I’ve now been sitting here for potentially an hour and a half.  It is now 9:30 and I haven’t gotten up to use the washroom, thought about food, or been all that interested in whatever random rabbit hole mode #1 decides to conjure up.</p>
+
+<p>I am very interested in how the brain actually works.  So much so, that prior to the walk I picked up <a href="https://amzn.to/3mQSsiJ">The Brain: A Very Short Introduction</a>. Ultimately, I’m interested in how we can learn from the brain for constructing Artifical Intelligence and drawing parallels to our brains based on the hardware we have created.</p>
+
+<h3 id="admit-to-marijuana">Admit to marijuana?</h3>
+
+<p><img src="https://media.giphy.com/media/l41YeO6ZaVXHLgK88/giphy.gif" alt="Super Troopers"></p>
+
+<p>What better segue into drugs than neuroscience. You are probably now wondering if I’ve been high this whole time. And if you weren’t already, you certainly are now. Take a moment to absorb your gut reaction. Is it judgment?  Indifference?</p>
+
+<p>I’m writing from Canada, where cannabis was legalized for recreational use on October 17, 2018 having been banned since 1925. Despite the fact that it is legal and should be not much different than admitting to smoking a cigarette or drinking alcohol, I have strong reservations for doing so. So much so, that you will notice all of this has been crafted in a way that admits to nothing.</p>
+
+<h3 id="several-hours-to-write-something-that-takes-less-than-10-minutes-to-read">Several hours to write something that takes less than 10 minutes to read</h3>
+
+<p><img src="/assets/img/child-reading.jpg" alt="Child Reading">
+<em>Re-enactment of you the reader, circa 2020</em></p>
+
+<p>The average reading speed is 300 words per minute. I’m now at roughly 1900 words and have been writing for a couple of hours now - not including the hour and a half walk I did to stir up those words. At an average rate, you will have burned through all of this in just over 6 minutes. This writing style is quite light, so it’s likely less than five minutes. I have recently had much more appreciation for authors of books. I cannot imagine the number of days spent writing and re-writing.</p>
+
+<h3 id="finding-the-small-things">Finding the small things</h3>
+<p>This was part of a realization about why I find the writing helpful. As I do more of it, I’m better able to identify what pieces are worth writing. Our brains do not remember everything that happens. We are in control of determining what things get baked in to long term memory. Just by crafting this story, I have cemented all of the positive thoughts that I would like to stick around. You’ll notice a lack of anything too negative. The thought bombing was maybe the worst, but I felt it was worth sharing. By letting go of the other thoughts they disappear. Each of these points has been a seed sown and now I can water and tend to the garden.</p>
+
+<h3 id="experiment-to-how-the-world-responds">Experiment to how the world responds</h3>
+<p>I’m curious how people will respond to this. People I know well, people I hardly know, and people who have never heard of me. I have no idea what that response may be, nor where it would actually come from.</p>
+
+<h3 id="prohibition-and-relation-to-drugs">Prohibition and relation to drugs</h3>
+
+<p><img src="https://media.giphy.com/media/cmx1gjLskcGWytbLm6/giphy.gif" alt="Whisky"></p>
+
+<blockquote>
+<p>You didn’t think I was done with this topic did you?</p>
+</blockquote>
+
+<p>Alcohol was <a href="https://en.wikipedia.org/wiki/Prohibition_in_Canada">banned nationally</a> in Canada from 1918 to 1920 and most provinces repealed their bans in the early 1920s. Compare this with the <a href="https://en.wikipedia.org/wiki/Prohibition_in_the_United_States">United States Prohibition</a> that started in 1920 and wasn’t repealed until December 1933. Remember how everything is linked? The USA is hands down a category king when it comes to (for lack of a better word) capitalism. However, as mentioned earlier, being a category king does not necessarily mean you are actually the one innovating. I’m no economist, but I theorize that Canada is much like the underdog startup. With roughly a tenth of the population, it is potentially 10 times easier to enact social change. Banning alcohol in the first place was likely a progressive idea. Ironically, it was equally as progressive an idea to unban it.</p>
+
+<p>We’re sitting at pretty near the same juncture when it comes to <a href="https://en.wikipedia.org/wiki/Cannabis_in_the_United_States">Cannibis in the United States</a>. A very un-United (ited?) approach where there is confusion over whether federal law supercedes state law. If history is any indicator, we’re looking at another 10+ years before that makes its way in at the federal level.</p>
+
+<h3 id="should-we-have-to-worry-that-things-we-say-are-going-to-destroy-our-life-cancelculture">Should we have to worry that things we say are going to destroy our life #cancelculture</h3>
+<p>This thought ties back to the marijuana conversation. Justin Trudeau could have lost his position over <a href="https://www.youtube.com/watch?v=2Mkr6jZ2MPg">admitting to trying pot</a>. Jenna Marbles <a href="https://www.cnn.com/2020/06/26/entertainment/jenna-marbles-quits-youtube-intl-hnk-scli/index.html">ejected herself</a> from creating content on YouTube. Bret Weinstein resigned from his position as professor of biology at Evergreen State College over a <a href="https://en.wikipedia.org/wiki/Bret_Weinstein#Evergreen_State_College_Day_of_Absence">controversy</a> that has essentially spawned the <a href="https://en.wikipedia.org/wiki/Intellectual_dark_web">Intellectual Dark Web</a>.</p>
+
+<p>This is a humungous topic. I expect it will find its own full post some time in the future.</p>
+
+<p><img src="https://media.giphy.com/media/hriThcBWJcmBQy5wfN/giphy.gif" alt="Cancelled"></p>
+
+<h3 id="anonymous-commenting">Anonymous commenting?</h3>
+<p>I’m still undecided on how I feel about commenting. If I did it, I would almost prefer it be anonymous. Currently that is all extra effort, so I don’t expect it to happen for a while.</p>
+
+<h3 id="email-me-directly-for-now">Email me directly for now</h3>
+<p>I would love to hear thoughts that people had while reading, but I don’t think comments are necessarily the right answer. For now, I think email is the simplest solution. Your comment is most likely directed at me, so there’s no need for it to distract away from the original content. I will also post all my stories on Twitter, where you can tweet me <a href="https://twitter.com/devtails">@devtails</a>.</p>
+
+<h3 id="email-under-rated">Email under rated</h3>
+<p>Email is an underated medium for asynchronous slow conversation. I may not respond right away, but I do clear out my inbox at regular intervals - so eventually I should. It’s also nearly the only digital account I expect nearly everyone online to have.</p>
+
+<h3 id="rss-feeds">RSS feeds</h3>
+<p>I recently discovered that <a href="https://www.thunderbird.net/en-US/">Mozilla Thunderbird</a> supports RSS feeds. It essentially turns it in to an email account that receives the new posts as they are added the the site’s RSS feed. After scanning a dozen subscription options and attempting to <a href="https://lukesingham.com/rss-feed-reader/">self host </a>, I’m inclined to think that I will try that out sometime soon and post any updates I have there.</p>
+
+<p><img src="/assets/img/thunder-birds.jpg" alt="Thunder Birds">
+<em>Thunder Birds</em></p>
+
+<h3 id="actually-feel-calm">Actually feel calm</h3>
+<p>Past me is calm, but current me just realized the amount of time that has elapsed between these thoughts is tiny. I’m approaching the three hour mark of writing details, but my past self is still seated calmly on the bench. I have maybe been at the park for a few minutes, and it’s taken me three hours to barely scratch the surface of what these condensed thoughts actually are.</p>
+
+<h3 id="shoulders-relaxed">Shoulders relaxed</h3>
+
+<p><img src="/assets/img/calm-nature.jpg" alt="Calm"></p>
+
+<p>As I write this, I observe my shoulders have lifted themselves to their default tense position a couple inches above where they should actually be.</p>
+
+<h3 id="knee-not-entirely-painful">Knee not entirely painful</h3>
+<p>For several years now I have experienced chronic knee pain. There was an specific injury maybe three years ago, but I have always had what I would describe as restless leg syndrome. The feeling I experience in my legs (particularly my left), makes it very difficult to sit still. I find myself adjusting my seating position several times per minute at times. When you have attention problems that certainly doesn’t help. Or is it the attention problems that makes it impossible for me to ignore the phantom pains I am feeling in my legs?</p>
+
+<h3 id="just-want-to-yell-out-all-the-thoughts-so-i-can-make-them-go-away">Just want to yell out all the thoughts so I can make them go away</h3>
+<p>And so that’s what I’m doing here. Very few of these are new thoughts. My brain has decided that it likes to chew on them. Some are days old, some months, and some have existed by some measure as far back as my memory goes. Thank you for reading them. Or alternatively, thank you Internet for allowing me to dispose of them.</p>
+
+<h3 id="they-excite-me-and-they-haunt-me-at-the-same-time">They excite me and they haunt me at the same time</h3>
+
+<p><img src="https://media.giphy.com/media/26BoEeFJkz2eZUBcQ/giphy.gif" alt="Brain Explosion"></p>
+
+<p>These kinds of thoughts are sometimes the main thing that get me through a day. I have to look forward to something, and so I look forward to learning more things.</p>
+
+<p>On the flip side, it is a never ending battle. No amount of progress is enough. What I have accomplished is never good enough. Even when the thoughts are positive or interesting things, it becomes uncomfortable when I’m unable to control them. It happens sometimes mid-conversation. I frequently have to apologize for not paying attention to something that was just said directly to me. Truthfully, by the time you’ve finished your sentence I have had at least 3 thoughts similar to all of the above. Most times I’m able to come back to reality and yank the words back in to recall so I can get back up to speed on where our conversation is. However, this works very poorly across a conversation that persists over several sentences. Writing that makes it sound ridiculous but that doesn’t make it less true. I have a very difficult time following along to verbal stories. If there is more than one person and action in your story, I guarantee I’m only half following along.</p>
+
+<p>Thankfully, I learned pretty early on that text is my preferred form of learning. With text I am able to restart a sentence when this occurs. I don’t fear losing details, because I know they exist there on the screen or page. In university, I was struggling in one of my Calculus courses until I decided to stop going to the lectures. I was getting so lost in the words that I was not picking up any information. I instead spent that time with the textbook and fared much better than I would have in that classroom.</p>
+
+<h3 id="why-are-dogs-happier-than-humans">Why are dogs happier than humans?</h3>
+<p>I’ve kind of indirectly touched on this topic above. Let’s reverse the pretend situation we had before.  You are now a human that someone is treating like a dog. They are excited to see you pretty much all the time. They give you both physical and verbal affection. Their love for you is pretty near unconditional. You don’t need to have a job, because they pay for everything and prepare meals for you. Initially, you would likely have guilt. But, imagine this arrangement has gone on for several generations for you. This is now normal for you. You don’t question why it is the way it is. I like to think of cats and dogs as zen masters. Unlike us, they seem to be perfectly capable of doing nothing.</p>
+
+<h3 id="why-do-dogs-chase-balls">Why do dogs chase balls?</h3>
+
+<p><img src="/assets/img/dog-ball.jpg" alt="Dog Ball"></p>
+
+<p>If you’ve ever followed a young child around, you probably also wonder why they do most of the things they do. Now picture a basketball player - or any sport for that matter. Basketball is essentially glorified ball chasing. Why do we do it? I would say fun, exercise, and socializing are at least some of the reasons. Sitting at the park today watching the dogs, I can only assume that’s exactly what was going on there.</p>
+
+<h3 id="thought-bank">Thought bank</h3>
+
+<p><img src="/assets/img/piggy-bank.jpg" alt="Piggy Bank"></p>
+
+<p>Now introducing an app idea, which if you’re paying attention, still relates to everything else going on here.  Thought bank is really just a different term for journal. However, I like the slight difference in that it implies some form of banking. A journal is for your eyes only. A thought bank is somewhere you go to deposit, invest, and transfer thoughts. Despite what I just said above about not being able to follow stories, I love conversations. Unfortunately, to have fluent long lasting conversation the topics almost need to be identified ahead of time. The recent surge in podcasts has been interesting to watch. These are conversations of 20 minutes to up to 3 hours. I don’t know about you, but if you recorded me in a conversation for 3 hours, there would only be about 10 minutes of me actually talking. The thought bank is where you put those thoughts to save for a rainy day when you have a conversation.</p>
+
+<p>It is now 11:15 PM and it’s time to bring the first part of this journey to a close. I knew this was going to be too long for one post, but I wasn’t sure where the natural break was going to be. According to <a href="https://buffer.com/library/the-ideal-length-of-everything-online-according-to-science/#:~:text=The%20ideal%20length%20of%20a%20blog%20post%20is%207%20minutes%2C%201%2C600%20words&amp;text=How%20long%20do%20readers%20stick,post%20is%20seven%20minutes%20long.">this </a> the ideal post length is 7 minutes or 1600 words. However, the <a href="https://wordcounter.net/blog/2017/02/15/102944_how-many-words-chapter.html#:~:text=Most%20agree%20that%20under%201%2C000,decide%20on%20are%20merely%20guidelines.">ideal chapter length for a book</a> is somewhere between 3000-5000 words. We’re now at ~3500 words and my re-read took about 7 minutes, so I’ll call this a wrap.</p>
+
+<p>Interestingly, this ends up being a natural place to stop for other reasons. At this point in my walk, I decided to leave the dog park and start heading home. In the current present, it is 11:15 PM and I am ready to call it a night.</p>
+
+<h2 id="closing-thoughts">Closing Thoughts</h2>
+
+<p>If you’re feeling a bit confused and frustrated right now, then I have successfully put you inside my brain for a brief moment. This was an experiment for myself and I’m glad you tagged along.</p>
+
+</div>
+
+
+  <hr>
+  <!-- Begin Mailchimp Signup Form -->
+  <link href="//cdn-images.mailchimp.com/embedcode/classic-10_7_dtp.css" rel="stylesheet" type="text/css">
+  <style type="text/css">
+    #mc_embed_signup {
+      clear: left;
+    }
+
+    #mc_embed_signup form {
+      padding: 8px;
+    }
+  </style>
+  <div id="mc_embed_signup">
+    <form action="https://xyz.us1.list-manage.com/subscribe/post?u=d597bd6edc50da6946aed0608&amp;id=83f1715cd3" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="novalidate">
+      <div id="mc_embed_signup_scroll">
+        <h2>Subscribe to Monthly Newsletter</h2>
+        <div class="indicates-required"><span class="asterisk">*</span> indicates required</div>
+        <div class="mc-field-group">
+          <label for="mce-EMAIL">Email Address <span class="asterisk">*</span>
+          </label>
+          <input type="email" value="" name="EMAIL" class="required email" id="mce-EMAIL" aria-required="true">
+        </div>
+        <div hidden="true"><input type="hidden" name="tags" value="3991333"></div>
+        <div id="mce-responses" class="clear foot">
+          <div class="response" id="mce-error-response" style="display:none"></div>
+          <div class="response" id="mce-success-response" style="display:none"></div>
+        </div>
+        <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
+        <div style="position: absolute; left: -5000px;" aria-hidden="true"><input type="text" name="b_d597bd6edc50da6946aed0608_83f1715cd3" tabindex="-1" value=""></div>
+        <div class="optionalParent">
+          <div class="clear foot">
+            <input type="submit" value="Subscribe" name="subscribe" id="mc-embedded-subscribe" class="button">
+            <p class="brandingLogo"><a href="http://eepurl.com/hwNINX" title="Mailchimp - email marketing made easy and fun"><img src="https://eep.io/mc-cdn-images/template_images/branding_logo_text_dark_dtp.svg"></a></p>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script>
+  <script type="text/javascript">(function ($) { window.fnames = new Array(); window.ftypes = new Array(); fnames[0] = 'EMAIL'; ftypes[0] = 'email'; fnames[1] = 'FNAME'; ftypes[1] = 'text'; fnames[2] = 'LNAME'; ftypes[2] = 'text'; fnames[3] = 'ADDRESS'; ftypes[3] = 'address'; fnames[4] = 'PHONE'; ftypes[4] = 'phone'; fnames[5] = 'BIRTHDAY'; ftypes[5] = 'birthday'; }(jQuery)); var $mcj = jQuery.noConflict(true);</script><ul class="post-list"><hr>
+<li>
+  <h3 class="mb-0.5">
+      <a class="post-link" href="/3-lines-of-code-shouldnt-take-all-day">
+          3 Lines of Code Shouldn't Take All Day
+      </a>
+  </h3>
+  <span class="post-meta">
+      <span>2021-12-14</span>
+      ·
+      <a href="/authors/adam">adam</a>
+      ·<span>
+          <a href="/tags/tails">#tails</a>
+      </span></span>
+  <p>Reflections on my time at Electronic Arts and techniques used to improve iteration times in video game development</p>
+</li><hr>
+<li>
+  <h3 class="mb-0.5">
+      <a class="post-link" href="/breaking-up-with-apple">
+          Hey Siri, We're Breaking Up
+      </a>
+  </h3>
+  <span class="post-meta">
+      <span>2022-02-01</span>
+      ·
+      <a href="/authors/adam">adam</a>
+      ·<span>
+          <a href="/tags/tails">#tails</a>
+      </span></span>
+  <p>Motivations behind switching from a smart phone to a feature phone</p>
+</li><hr>
+<li>
+  <h3 class="mb-0.5">
+      <a class="post-link" href="/taking-flight-without-a-smart-phone">
+          Taking Flight Without a Smart Phone
+      </a>
+  </h3>
+  <span class="post-meta">
+      <span>2022-04-10</span>
+      ·
+      <a href="/authors/adam">adam</a>
+      ·<span>
+          <a href="/tags/tails">#tails</a>
+      </span></span>
+  <p>Reflections after one month with a feature phone</p>
+</li><hr>
+<li>
+  <h3 class="mb-0.5">
+      <a class="post-link" href="/how-to-replace-webpack-in-create-react-app-with-esbuild">
+          How to Replace Webpack in Create React App With esbuild
+      </a>
+  </h3>
+  <span class="post-meta">
+      <span>2022-02-28</span>
+      ·
+      <a href="/authors/adam">adam</a>
+      ·<span>
+          <a href="/tags/dev">#dev</a>
+      </span><span>
+          <a href="/tags/react">#react</a>
+      </span><span>
+          <a href="/tags/esbuild">#esbuild</a>
+      </span></span>
+  <p></p>
+</li></ul>
+</article>
+    </div>
+  </main><footer class="site-footer h-card">
+<data class="u-url" href="/%20/"></data>
+
+<div class="wrapper">
+  <p>An <a href="https://www.xyzdigital.com/">xyzdigital</a> publication featuring stories, tutorials, and reflections about
+    technology and software development</p>
+  <p><a class="u-email" href="mailto:adam@devtails.xyz">adam@devtails.xyz</a></p>
+  <div>
+    <a href="/feed.xml">
+      <svg class="svg-icon orange">
+        <use xlink:href="/assets/minima-social-icons.svg#rss"></use>
+      </svg><span>RSS</span>
+    </a>
+  </div>
+  <div>
+    <a href="https://www.twitter.com/devtails"><svg class="svg-icon">
+        <use xlink:href="/assets/minima-social-icons.svg#twitter"></use>
+      </svg> <span class="username">devtails</span></a>
+  </div>
+  <div>
+    <a href="https://medium.com/@devtails"><span class="username">Follow on Medium</span></a>
+  </div>
+
+</div>
+
+</footer>
+
+</body></html>
