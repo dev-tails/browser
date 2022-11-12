@@ -1,9 +1,14 @@
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#else
+#include <curl/curl.h>
+#endif
+
 #include <iostream>
 #include <unordered_map>
 #include <regex>
 #include <string>
 #include <vector>
-#include <curl/curl.h>
 
 using namespace std;
 
@@ -88,17 +93,31 @@ static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
   return realsize;
 }
 
+void handle_events()
+{
+  SDL_Event e;
+  while (SDL_PollEvent(&e) != 0)
+  {
+    event_filter(NULL, &e);
+  }
+}
+
+void loop(void)
+{
+  handle_events();
+}
+
 int main(int argc, char *argv[])
 {
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
-  tag_font_map.insert(pair<string, TTF_Font *>("h1", TTF_OpenFont("arial-bold.ttf", 48)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h2", TTF_OpenFont("arial-bold.ttf", 44)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h3", TTF_OpenFont("arial-bold.ttf", 40)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h4", TTF_OpenFont("arial-bold.ttf", 36)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h5", TTF_OpenFont("arial-bold.ttf", 32)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h6", TTF_OpenFont("arial-bold.ttf", 28)));
-  tag_font_map.insert(pair<string, TTF_Font *>("p", TTF_OpenFont("arial.ttf", 24)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h1", TTF_OpenFont("./assets/arial-bold.ttf", 48)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h2", TTF_OpenFont("./assets/arial-bold.ttf", 44)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h3", TTF_OpenFont("./assets/arial-bold.ttf", 40)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h4", TTF_OpenFont("./assets/arial-bold.ttf", 36)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h5", TTF_OpenFont("./assets/arial-bold.ttf", 32)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h6", TTF_OpenFont("./assets/arial-bold.ttf", 28)));
+  tag_font_map.insert(pair<string, TTF_Font *>("p", TTF_OpenFont("./assets/arial.ttf", 24)));
 
   tag_y_margin_map.insert(pair<string, int>("h1", 24));
   tag_y_margin_map.insert(pair<string, int>("h2", 24));
@@ -111,8 +130,6 @@ int main(int argc, char *argv[])
   SDL_DisplayMode DM;
   SDL_GetCurrentDisplayMode(0, &DM);
 
-  SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1");
-
   window = SDL_CreateWindow("browser",
                             SDL_WINDOWPOS_UNDEFINED,
                             SDL_WINDOWPOS_UNDEFINED,
@@ -124,8 +141,11 @@ int main(int argc, char *argv[])
                                 -1,
                                 SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-  clear();
-
+#if __EMSCRIPTEN__
+  nodes.push_back(new Node("h1", "Page Title"));
+  render();
+  emscripten_set_main_loop(loop, 0, 1);
+#else
   SDL_SetEventFilter(event_filter, NULL);
 
   CURL *curl_handle = curl_easy_init();
@@ -172,12 +192,14 @@ int main(int argc, char *argv[])
   }
   TTF_Quit();
   SDL_Quit();
+#endif
 
   return 0;
 }
 
 void clear()
 {
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
 }
 
