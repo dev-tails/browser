@@ -1,5 +1,8 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#include <emscripten/val.h>
+
+using namespace emscripten;
 #else
 #include <curl/curl.h>
 #endif
@@ -102,6 +105,31 @@ void handle_events()
   }
 }
 
+#ifdef __EMSCRIPTEN__
+EM_ASYNC_JS(EM_VAL, fetch_html, (const char *url), {
+  url = UTF8ToString(url);
+  let response = await fetch(url);
+  let text = await response.text();
+
+  return Emval.toHandle(text);
+});
+#endif
+
+void parse_nodes_from_content(string content) {
+  std::regex tag_regex("<(h\\d|p)[-\\w\\s=\"\']*>(.*)</(h\\d|p)>");
+  auto words_begin =
+      std::sregex_iterator(content.begin(), content.end(), tag_regex);
+  auto words_end = std::sregex_iterator();
+
+  for (std::sregex_iterator i = words_begin; i != words_end; ++i)
+  {
+    std::smatch match = *i;
+    string tag = match[1].str();
+    string text = match[2].str();
+    nodes.push_back(new Node(tag, text));
+  }
+}
+
 void loop(void)
 {
   handle_events();
@@ -109,6 +137,8 @@ void loop(void)
 
 int main(int argc, char *argv[])
 {
+  string url = "https://devtails.xyz/breadth-first-search-a-walk-in-the-park";
+
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
   tag_font_map.insert(pair<string, TTF_Font *>("h1", TTF_OpenFont("./assets/arial-bold.ttf", 48)));
@@ -142,7 +172,12 @@ int main(int argc, char *argv[])
                                 SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 #if __EMSCRIPTEN__
-  nodes.push_back(new Node("h1", "Page Title"));
+  val text = val::take_ownership(fetch_html(url.c_str()));
+
+  std::string html_content = text.as<std::string>();
+
+  parse_nodes_from_content(html_content);
+
   render();
   emscripten_set_main_loop(loop, 0, 1);
 #else
@@ -150,7 +185,7 @@ int main(int argc, char *argv[])
 
   CURL *curl_handle = curl_easy_init();
 
-  curl_easy_setopt(curl_handle, CURLOPT_URL, "https://devtails.xyz/breadth-first-search-a-walk-in-the-park");
+  curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
   struct memory chunk = {0};
 
   curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, cb);
@@ -163,20 +198,7 @@ int main(int argc, char *argv[])
   }
   curl_easy_cleanup(curl_handle);
 
-  string response_text = string(chunk.response);
-
-  std::regex tag_regex("<(h\\d|p)[-\\w\\s=\"\']*>(.*)</(h\\d|p)>");
-  auto words_begin =
-      std::sregex_iterator(response_text.begin(), response_text.end(), tag_regex);
-  auto words_end = std::sregex_iterator();
-
-  for (std::sregex_iterator i = words_begin; i != words_end; ++i)
-  {
-    std::smatch match = *i;
-    string tag = match[1].str();
-    string text = match[2].str();
-    nodes.push_back(new Node(tag, text));
-  }
+  parse_nodes_from_content(string(chunk.response));
 
   render();
 
