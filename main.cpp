@@ -113,9 +113,8 @@ void render()
     string text = match[2].str();
 
     TTF_Font *font = tag == "h1" ? font_h1 : font_p;
-    int font_size = tag == "h1" ? font_size_h1 : font_size_p;
 
-    SDL_Surface *surface = TTF_RenderUTF8_Blended(font, text.c_str(), color);
+    SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(font, text.c_str(), color, 1600);
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
@@ -123,12 +122,11 @@ void render()
     int texH = 0;
     SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
     SDL_Rect dstrect = {0, y, texW, texH};
+    y += texH;
 
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
-
-    y += font_size;
   }
 
   SDL_RenderPresent(renderer);
