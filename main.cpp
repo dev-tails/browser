@@ -26,6 +26,7 @@ public:
 bool done = false;
 
 unordered_map<string, TTF_Font *> tag_font_map;
+unordered_map<string, int> tag_y_margin_map;
 
 int line_index = 0;
 
@@ -91,13 +92,21 @@ int main(int argc, char *argv[])
 {
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
-  tag_font_map.insert(pair<string, TTF_Font *>("h1", TTF_OpenFont("arial.ttf", 48)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h2", TTF_OpenFont("arial.ttf", 44)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h3", TTF_OpenFont("arial.ttf", 40)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h4", TTF_OpenFont("arial.ttf", 36)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h5", TTF_OpenFont("arial.ttf", 32)));
-  tag_font_map.insert(pair<string, TTF_Font *>("h6", TTF_OpenFont("arial.ttf", 28)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h1", TTF_OpenFont("arial-bold.ttf", 48)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h2", TTF_OpenFont("arial-bold.ttf", 44)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h3", TTF_OpenFont("arial-bold.ttf", 40)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h4", TTF_OpenFont("arial-bold.ttf", 36)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h5", TTF_OpenFont("arial-bold.ttf", 32)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h6", TTF_OpenFont("arial-bold.ttf", 28)));
   tag_font_map.insert(pair<string, TTF_Font *>("p", TTF_OpenFont("arial.ttf", 24)));
+
+  tag_y_margin_map.insert(pair<string, int>("h1", 24));
+  tag_y_margin_map.insert(pair<string, int>("h2", 24));
+  tag_y_margin_map.insert(pair<string, int>("h3", 20));
+  tag_y_margin_map.insert(pair<string, int>("h4", 20));
+  tag_y_margin_map.insert(pair<string, int>("h5", 16));
+  tag_y_margin_map.insert(pair<string, int>("h6", 16));
+  tag_y_margin_map.insert(pair<string, int>("p", 16));
 
   SDL_DisplayMode DM;
   SDL_GetCurrentDisplayMode(0, &DM);
@@ -197,7 +206,14 @@ void render()
     int texH = 0;
     SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
     SDL_Rect dstrect = {0, y_offset + y, texW, texH};
-    y += texH;
+    int y_margin = 0;
+    auto it2 = tag_y_margin_map.find(node->tag);
+    if (it2 != tag_y_margin_map.end())
+    {
+      y_margin = it2->second;
+    }
+
+    y += texH + y_margin;
 
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
     SDL_DestroyTexture(texture);
