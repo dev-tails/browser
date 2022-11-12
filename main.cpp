@@ -1,4 +1,5 @@
 #include <iostream>
+#include <unordered_map>
 #include <regex>
 #include <string>
 #include <vector>
@@ -9,15 +10,32 @@ using namespace std;
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+class Node
+{
+public:
+  Node(string tag, string innerText)
+  {
+    this->tag = tag;
+    this->innerText = innerText;
+  }
+
+  string tag;
+  string innerText;
+};
+
 bool done = false;
-const int font_size_h1 = 48;
-const int font_size_p = 24;
+
+unordered_map<string, TTF_Font *> tag_font_map;
+
 int line_index = 0;
 
 SDL_Window *window;
 SDL_Renderer *renderer;
-TTF_Font *font_h1 = NULL;
-TTF_Font *font_p = NULL;
+
+string html_content;
+vector<Node *> nodes;
+
+int y_offset = 0;
 
 void clear();
 void render();
@@ -28,17 +46,58 @@ static int SDLCALL event_filter(void *userdata, SDL_Event *event)
   {
     return 1;
   }
+  else if (event->type == SDL_KEYDOWN)
+  {
+    switch (event->key.keysym.sym)
+    {
+    case SDLK_UP:
+      y_offset += 100;
+      render();
+      break;
+    case SDLK_DOWN:
+      y_offset -= 100;
+      render();
+      break;
+    }
+  }
 
   return 0;
+}
+
+struct memory
+{
+  char *response;
+  size_t size;
+};
+
+static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
+{
+  size_t realsize = size * nmemb;
+  struct memory *mem = (struct memory *)userp;
+
+  char *ptr = (char *)realloc(mem->response, mem->size + realsize + 1);
+  if (ptr == NULL)
+    return 0; /* out of memory! */
+
+  mem->response = ptr;
+  memcpy(&(mem->response[mem->size]), data, realsize);
+  mem->size += realsize;
+  mem->response[mem->size] = 0;
+
+  return realsize;
 }
 
 int main(int argc, char *argv[])
 {
   SDL_Init(SDL_INIT_VIDEO);
-
   TTF_Init();
-  font_h1 = TTF_OpenFont("arial.ttf", font_size_h1);
-  font_p = TTF_OpenFont("arial.ttf", font_size_p);
+  tag_font_map.insert(pair<string, TTF_Font *>("h1", TTF_OpenFont("arial.ttf", 48)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h2", TTF_OpenFont("arial.ttf", 44)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h3", TTF_OpenFont("arial.ttf", 40)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h4", TTF_OpenFont("arial.ttf", 36)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h5", TTF_OpenFont("arial.ttf", 32)));
+  tag_font_map.insert(pair<string, TTF_Font *>("h6", TTF_OpenFont("arial.ttf", 28)));
+  tag_font_map.insert(pair<string, TTF_Font *>("p", TTF_OpenFont("arial.ttf", 24)));
 
   SDL_DisplayMode DM;
   SDL_GetCurrentDisplayMode(0, &DM);
@@ -60,59 +119,6 @@ int main(int argc, char *argv[])
 
   SDL_SetEventFilter(event_filter, NULL);
 
-  render();
-
-  SDL_Event event;
-  SDL_WaitEvent(&event);
-
-  SDL_DestroyRenderer(renderer);
-  SDL_DestroyWindow(window);
-
-  TTF_CloseFont(font_h1);
-  TTF_Quit();
-  SDL_Quit();
-
-  return 0;
-}
-
-void clear()
-{
-  SDL_RenderClear(renderer);
-}
-
-typedef struct Node
-{
-  string tag;
-  string text;
-} Node;
-
-struct memory
-{
-  char *response;
-  size_t size;
-};
-
-static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
-{
-  size_t realsize = size * nmemb;
-  struct memory *mem = (struct memory *)userp;
-
-  char *ptr = (char *) realloc(mem->response, mem->size + realsize + 1);
-  if (ptr == NULL)
-    return 0; /* out of memory! */
-
-  mem->response = ptr;
-  memcpy(&(mem->response[mem->size]), data, realsize);
-  mem->size += realsize;
-  mem->response[mem->size] = 0;
-
-  return realsize;
-}
-
-void render()
-{
-  clear();
-
   CURL *curl_handle = curl_easy_init();
 
   curl_easy_setopt(curl_handle, CURLOPT_URL, "https://devtails.xyz/breadth-first-search-a-walk-in-the-park");
@@ -122,7 +128,6 @@ void render()
   curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
   CURLcode res = curl_easy_perform(curl_handle);
 
-  cout << "Returned " << res << endl;
   if (res != CURLE_OK)
   {
     fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
@@ -136,25 +141,62 @@ void render()
       std::sregex_iterator(response_text.begin(), response_text.end(), tag_regex);
   auto words_end = std::sregex_iterator();
 
-  SDL_Color color = {255, 255, 255};
-
-  int y = 0;
   for (std::sregex_iterator i = words_begin; i != words_end; ++i)
   {
     std::smatch match = *i;
     string tag = match[1].str();
     string text = match[2].str();
+    nodes.push_back(new Node(tag, text));
+  }
 
-    TTF_Font *font = tag == "h1" ? font_h1 : font_p;
+  render();
 
-    SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(font, text.c_str(), color, 1600);
+  SDL_Event event;
+  SDL_WaitEvent(&event);
+
+  SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
+
+  for (auto it : tag_font_map)
+  {
+    TTF_CloseFont(it.second);
+  }
+  TTF_Quit();
+  SDL_Quit();
+
+  return 0;
+}
+
+void clear()
+{
+  SDL_RenderClear(renderer);
+}
+
+void render()
+{
+  clear();
+
+  SDL_Color color = {255, 255, 255};
+
+  int y = 0;
+  for (auto node : nodes)
+  {
+    auto it = tag_font_map.find(node->tag);
+    if (it == tag_font_map.end())
+    {
+      continue;
+    }
+
+    TTF_Font *font = it->second;
+
+    SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(font, node->innerText.c_str(), color, 1600);
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
     int texW = 0;
     int texH = 0;
     SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-    SDL_Rect dstrect = {0, y, texW, texH};
+    SDL_Rect dstrect = {0, y_offset + y, texW, texH};
     y += texH;
 
     SDL_RenderCopy(renderer, texture, NULL, &dstrect);
