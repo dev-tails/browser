@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 
   string response_text = string(chunk.response);
 
-  std::regex tag_regex("<(h\\d|p).*>(.*)</(h\\d|p)>");
+  std::regex tag_regex("<(h\\d|p)[-\\w\\s=\"\']*>(.*)</(h\\d|p)>");
   auto words_begin =
       std::sregex_iterator(response_text.begin(), response_text.end(), tag_regex);
   auto words_end = std::sregex_iterator();
