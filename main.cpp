@@ -137,7 +137,7 @@ void loop(void)
 
 int main(int argc, char *argv[])
 {
-  string url = "https://devtails.xyz/breadth-first-search-a-walk-in-the-park";
+  string url = "https://devtails.xyz/@adam/building-a-web-browser-with-sdl-in-c++";
 
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();

@@ -8,7 +8,7 @@ browser: main.cpp
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 web:
-	emcc main.cpp --bind -s ASYNCIFY -s ASYNCIFY_IMPORTS=[async_sleep] -s USE_SDL=2 -s USE_SDL_TTF=2 --preload-file assets --shell-file emscripten/template/index.html -o public/index.html
+	emcc main.cpp -O3 --bind -s ASYNCIFY -s ASYNCIFY_IMPORTS=[async_sleep] -s USE_SDL=2 -s USE_SDL_TTF=2 --preload-file assets --shell-file emscripten/template/index.html -o public/index.html
 
 # https://stackoverflow.com/questions/39892692/how-to-implement-make-install-in-a-makefile
 ifeq ($(PREFIX),)
