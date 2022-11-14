@@ -41,6 +41,7 @@ int line_index = 0;
 SDL_Window *window;
 SDL_Renderer *renderer;
 
+string url_address = "";
 string html_content;
 vector<Node *> nodes;
 
@@ -48,30 +49,6 @@ int y_offset = 0;
 
 void clear();
 void render();
-
-static int SDLCALL event_filter(void *userdata, SDL_Event *event)
-{
-  if (event->type == SDL_QUIT)
-  {
-    return 1;
-  }
-  else if (event->type == SDL_KEYDOWN)
-  {
-    switch (event->key.keysym.sym)
-    {
-    case SDLK_UP:
-      y_offset += 100;
-      render();
-      break;
-    case SDLK_DOWN:
-      y_offset -= 100;
-      render();
-      break;
-    }
-  }
-
-  return 0;
-}
 
 struct memory
 {
@@ -96,6 +73,90 @@ static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
   return realsize;
 }
 
+void parse_nodes_from_content(string content)
+{
+  nodes.clear();
+
+  std::regex tag_regex("<(h\\d|p)[-\\w\\s=\"\']*>(.*)</(h\\d|p)>");
+  auto words_begin =
+      std::sregex_iterator(content.begin(), content.end(), tag_regex);
+  auto words_end = std::sregex_iterator();
+
+  for (std::sregex_iterator i = words_begin; i != words_end; ++i)
+  {
+    std::smatch match = *i;
+    string tag = match[1].str();
+    string text = match[2].str();
+    nodes.push_back(new Node(tag, text));
+  }
+}
+
+void fetch_page(const string &url)
+{
+#if __EMSCRIPTEN__
+  val text = val::take_ownership(fetch_html(url.c_str()));
+
+  std::string html_content = text.as<std::string>();
+
+  parse_nodes_from_content(html_content);
+#else
+  CURL *curl_handle = curl_easy_init();
+
+  curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
+  struct memory chunk = {0};
+
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, cb);
+  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+  CURLcode res = curl_easy_perform(curl_handle);
+
+  if (res != CURLE_OK)
+  {
+    fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
+  }
+  curl_easy_cleanup(curl_handle);
+
+  parse_nodes_from_content(string(chunk.response));
+
+#endif
+}
+
+static int SDLCALL event_filter(void *userdata, SDL_Event *event)
+{
+  if (event->type == SDL_QUIT)
+  {
+    return 1;
+  }
+  else if (event->type == SDL_KEYDOWN)
+  {
+    switch (event->key.keysym.sym)
+    {
+    case SDLK_UP:
+      y_offset += 100;
+      render();
+      break;
+    case SDLK_DOWN:
+      y_offset -= 100;
+      render();
+      break;
+    case SDLK_BACKSPACE:
+      url_address.pop_back();
+      render();
+      break;
+    case SDLK_RETURN:
+      fetch_page(url_address);
+      render();
+      break;
+    }
+  }
+  else if (event->type == SDL_TEXTINPUT)
+  {
+    url_address += event->text.text;
+    render();
+  }
+
+  return 0;
+}
+
 void handle_events()
 {
   SDL_Event e;
@@ -114,21 +175,6 @@ EM_ASYNC_JS(EM_VAL, fetch_html, (const char *url), {
   return Emval.toHandle(text);
 });
 #endif
-
-void parse_nodes_from_content(string content) {
-  std::regex tag_regex("<(h\\d|p)[-\\w\\s=\"\']*>(.*)</(h\\d|p)>");
-  auto words_begin =
-      std::sregex_iterator(content.begin(), content.end(), tag_regex);
-  auto words_end = std::sregex_iterator();
-
-  for (std::sregex_iterator i = words_begin; i != words_end; ++i)
-  {
-    std::smatch match = *i;
-    string tag = match[1].str();
-    string text = match[2].str();
-    nodes.push_back(new Node(tag, text));
-  }
-}
 
 void loop(void)
 {
@@ -172,33 +218,10 @@ int main(int argc, char *argv[])
                                 SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 #if __EMSCRIPTEN__
-  val text = val::take_ownership(fetch_html(url.c_str()));
-
-  std::string html_content = text.as<std::string>();
-
-  parse_nodes_from_content(html_content);
-
   render();
   emscripten_set_main_loop(loop, 0, 1);
 #else
   SDL_SetEventFilter(event_filter, NULL);
-
-  CURL *curl_handle = curl_easy_init();
-
-  curl_easy_setopt(curl_handle, CURLOPT_URL, url.c_str());
-  struct memory chunk = {0};
-
-  curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, cb);
-  curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
-  CURLcode res = curl_easy_perform(curl_handle);
-
-  if (res != CURLE_OK)
-  {
-    fprintf(stderr, "error: %s\n", curl_easy_strerror(res));
-  }
-  curl_easy_cleanup(curl_handle);
-
-  parse_nodes_from_content(string(chunk.response));
 
   render();
 
@@ -225,7 +248,8 @@ void clear()
   SDL_RenderClear(renderer);
 }
 
-void render_text(TTF_Font *font, const char *text, SDL_Color &color,int y) {
+void render_text(TTF_Font *font, const char *text, SDL_Color &color, int y)
+{
   SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(font, text, color, 1600);
 
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -240,7 +264,8 @@ void render_text(TTF_Font *font, const char *text, SDL_Color &color,int y) {
   SDL_FreeSurface(surface);
 }
 
-void render_address_bar() {
+void render_address_bar()
+{
   SDL_Rect rect;
   rect.x = 0;
   rect.y = 0;
@@ -251,7 +276,7 @@ void render_address_bar() {
 
   auto it = tag_font_map.find("p");
   SDL_Color color = {0, 0, 0};
-  render_text(it->second, "https://devtails.xyz", color, 0);
+  render_text(it->second, url_address.c_str(), color, 0);
 }
 
 void render()
