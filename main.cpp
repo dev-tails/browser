@@ -225,13 +225,45 @@ void clear()
   SDL_RenderClear(renderer);
 }
 
+void render_text(TTF_Font *font, const char *text, SDL_Color &color,int y) {
+  SDL_Surface *surface = TTF_RenderUTF8_Blended_Wrapped(font, text, color, 1600);
+
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  int texW = 0;
+  int texH = 0;
+  SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
+  SDL_Rect dstrect = {16, y_offset + y, texW, texH};
+
+  SDL_RenderCopy(renderer, texture, NULL, &dstrect);
+  SDL_DestroyTexture(texture);
+  SDL_FreeSurface(surface);
+}
+
+void render_address_bar() {
+  SDL_Rect rect;
+  rect.x = 0;
+  rect.y = 0;
+  rect.w = 1600;
+  rect.h = 48;
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &rect);
+
+  auto it = tag_font_map.find("p");
+  SDL_Color color = {0, 0, 0};
+  render_text(it->second, "https://devtails.xyz", color, 0);
+}
+
 void render()
 {
   clear();
 
   SDL_Color color = {255, 255, 255};
 
-  int y = 0;
+  int y = 48 + 16;
+
+  render_address_bar();
+
   for (auto node : nodes)
   {
     auto it = tag_font_map.find(node->tag);
@@ -249,7 +281,7 @@ void render()
     int texW = 0;
     int texH = 0;
     SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-    SDL_Rect dstrect = {0, y_offset + y, texW, texH};
+    SDL_Rect dstrect = {16, y_offset + y, texW, texH};
     int y_margin = 0;
     auto it2 = tag_y_margin_map.find(node->tag);
     if (it2 != tag_y_margin_map.end())
