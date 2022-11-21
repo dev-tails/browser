@@ -73,22 +73,100 @@ static size_t cb(void *data, size_t size, size_t nmemb, void *userp)
   return realsize;
 }
 
+class HTMLElement
+{
+public:
+  string tagName;
+  vector<HTMLElement *> children;
+  HTMLElement *parentElement;
+  string textContent;
+};
+
+enum State
+{
+  STATE_INIT,
+  STATE_START_TAG,
+  STATE_READING_TAG,
+  STATE_READING_ATTRIBUTES,
+  STATE_END_TAG,
+  STATE_BEGIN_CLOSING_TAG
+};
+
+bool isWhitespace(char c)
+{
+  return c == ' ';
+}
+
+HTMLElement *HTMLParser(string input)
+{
+  HTMLElement *root = new HTMLElement();
+
+  State state = STATE_INIT;
+  HTMLElement *lastParent = root;
+  string tagName = "";
+
+  for (auto c : input) {
+    if (c == '<') {
+      state = STATE_START_TAG;
+    } else if (state == STATE_START_TAG) {
+      if (c == '/') {
+        state = STATE_BEGIN_CLOSING_TAG;
+      } else if (!isWhitespace(c)) {
+        state = STATE_READING_TAG;
+        tagName = c;
+      }
+    } else if (state == STATE_READING_TAG) {
+      if (isWhitespace(c)) {
+        state = STATE_READING_ATTRIBUTES;
+      } else if(c == '>') {
+        state = STATE_END_TAG;
+
+        auto parent = new HTMLElement(); 
+        parent->tagName = tagName;
+        parent->parentElement = lastParent;
+
+        lastParent->children.push_back(parent);
+        lastParent = parent;
+      } else {
+        tagName += c;
+      }
+    } else if(state == STATE_READING_ATTRIBUTES) {
+      if (c == '>') {
+        state = STATE_END_TAG;
+
+        auto parent = new HTMLElement(); 
+        parent->tagName = tagName;
+        parent->parentElement = lastParent;
+
+        lastParent->children.push_back(parent);
+        lastParent = parent;
+      }
+    } else if (state == STATE_END_TAG) {
+      lastParent->textContent += c;
+    } else if (state == STATE_BEGIN_CLOSING_TAG) {
+      if (c == '>') {
+        lastParent = lastParent->parentElement;
+      }
+    }
+  }
+
+  return root;
+}
+
+void recurse_html_elements(HTMLElement *el) {
+  nodes.push_back(new Node(el->tagName, el->textContent));
+
+  for (auto child : el->children) {
+    recurse_html_elements(child);
+  }
+}
+
 void parse_nodes_from_content(string content)
 {
   nodes.clear();
 
-  std::regex tag_regex("<(h\\d|p)[-\\w\\s=\"\']*>(.*)</(h\\d|p)>");
-  auto words_begin =
-      std::sregex_iterator(content.begin(), content.end(), tag_regex);
-  auto words_end = std::sregex_iterator();
-
-  for (std::sregex_iterator i = words_begin; i != words_end; ++i)
-  {
-    std::smatch match = *i;
-    string tag = match[1].str();
-    string text = match[2].str();
-    nodes.push_back(new Node(tag, text));
-  }
+  auto root = HTMLParser(content);
+  recurse_html_elements(root);
 }
 
 void fetch_page(const string &url)
@@ -194,6 +272,7 @@ int main(int argc, char *argv[])
   tag_font_map.insert(pair<string, TTF_Font *>("h5", TTF_OpenFont("./assets/arial-bold.ttf", 32)));
   tag_font_map.insert(pair<string, TTF_Font *>("h6", TTF_OpenFont("./assets/arial-bold.ttf", 28)));
   tag_font_map.insert(pair<string, TTF_Font *>("p", TTF_OpenFont("./assets/arial.ttf", 24)));
+  tag_font_map.insert(pair<string, TTF_Font *>("a", TTF_OpenFont("./assets/arial.ttf", 24)));
 
   tag_y_margin_map.insert(pair<string, int>("h1", 24));
   tag_y_margin_map.insert(pair<string, int>("h2", 24));
