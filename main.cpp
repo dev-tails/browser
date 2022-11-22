@@ -29,6 +29,10 @@ public:
 
   string tag;
   string innerText;
+  int x;
+  int y;
+  int w;
+  int h;
 };
 
 bool done = false;
@@ -105,46 +109,68 @@ HTMLElement *HTMLParser(string input)
   HTMLElement *lastParent = root;
   string tagName = "";
 
-  for (auto c : input) {
-    if (c == '<') {
+  for (auto c : input)
+  {
+    if (c == '<')
+    {
       state = STATE_START_TAG;
-    } else if (state == STATE_START_TAG) {
-      if (c == '/') {
+    }
+    else if (state == STATE_START_TAG)
+    {
+      if (c == '/')
+      {
         state = STATE_BEGIN_CLOSING_TAG;
-      } else if (!isWhitespace(c)) {
+      }
+      else if (!isWhitespace(c))
+      {
         state = STATE_READING_TAG;
         tagName = c;
       }
-    } else if (state == STATE_READING_TAG) {
-      if (isWhitespace(c)) {
+    }
+    else if (state == STATE_READING_TAG)
+    {
+      if (isWhitespace(c))
+      {
         state = STATE_READING_ATTRIBUTES;
-      } else if(c == '>') {
+      }
+      else if (c == '>')
+      {
         state = STATE_END_TAG;
 
-        auto parent = new HTMLElement(); 
+        auto parent = new HTMLElement();
         parent->tagName = tagName;
         parent->parentElement = lastParent;
 
         lastParent->children.push_back(parent);
         lastParent = parent;
-      } else {
+      }
+      else
+      {
         tagName += c;
       }
-    } else if(state == STATE_READING_ATTRIBUTES) {
-      if (c == '>') {
+    }
+    else if (state == STATE_READING_ATTRIBUTES)
+    {
+      if (c == '>')
+      {
         state = STATE_END_TAG;
 
-        auto parent = new HTMLElement(); 
+        auto parent = new HTMLElement();
         parent->tagName = tagName;
         parent->parentElement = lastParent;
 
         lastParent->children.push_back(parent);
         lastParent = parent;
       }
-    } else if (state == STATE_END_TAG) {
+    }
+    else if (state == STATE_END_TAG)
+    {
       lastParent->textContent += c;
-    } else if (state == STATE_BEGIN_CLOSING_TAG) {
-      if (c == '>') {
+    }
+    else if (state == STATE_BEGIN_CLOSING_TAG)
+    {
+      if (c == '>')
+      {
         lastParent = lastParent->parentElement;
       }
     }
@@ -153,10 +179,12 @@ HTMLElement *HTMLParser(string input)
   return root;
 }
 
-void recurse_html_elements(HTMLElement *el) {
+void recurse_html_elements(HTMLElement *el)
+{
   nodes.push_back(new Node(el->tagName, el->textContent));
 
-  for (auto child : el->children) {
+  for (auto child : el->children)
+  {
     recurse_html_elements(child);
   }
 }
@@ -224,6 +252,27 @@ static int SDLCALL event_filter(void *userdata, SDL_Event *event)
       fetch_page(url_address);
       render();
       break;
+    }
+  }
+  else if (event->type == SDL_MOUSEBUTTONDOWN)
+  {
+    int x, y;
+    SDL_GetMouseState(&x, &y);
+
+    x *= 2;
+    y *= 2;
+    cout << x << " " << y << endl;
+
+    for (auto node : nodes) {
+      if (node->tag != "a") {
+        continue;
+      }
+      if (node->x <= x && x <= node->x + node->w) {
+        if (node->y <= y && y <= node->y + node->h) {
+          cout << "Y: "<< node->y << " TAG: " << node->tag << " TEXT: " << node->innerText << endl;
+          break;
+        }
+      }
     }
   }
   else if (event->type == SDL_TEXTINPUT)
@@ -385,7 +434,13 @@ void render()
     int texW = 0;
     int texH = 0;
     SDL_QueryTexture(texture, NULL, NULL, &texW, &texH);
-    SDL_Rect dstrect = {16, y_offset + y, texW, texH};
+
+    node->x = 16;
+    node->y = y_offset + y;
+    node->w = texW;
+    node->h = texH;
+
+    SDL_Rect dstrect = {node->x, node->y, node->w, node->h};
     int y_margin = 0;
     auto it2 = tag_y_margin_map.find(node->tag);
     if (it2 != tag_y_margin_map.end())
