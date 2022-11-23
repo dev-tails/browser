@@ -21,14 +21,17 @@ using namespace std;
 class Node
 {
 public:
-  Node(string tag, string innerText)
+  Node(string tag, string innerText, string href)
   {
     this->tag = tag;
     this->innerText = innerText;
+    this->href = href;
   }
 
   string tag;
   string innerText;
+  string href;
+
   int x;
   int y;
   int w;
@@ -84,6 +87,7 @@ public:
   vector<HTMLElement *> children;
   HTMLElement *parentElement;
   string textContent;
+  string href;
 };
 
 enum State
@@ -91,7 +95,8 @@ enum State
   STATE_INIT,
   STATE_START_TAG,
   STATE_READING_TAG,
-  STATE_READING_ATTRIBUTES,
+  STATE_READ_ATTRIBUTE_KEY,
+  STATE_READ_ATTRIBUTE_VALUE,
   STATE_END_TAG,
   STATE_BEGIN_CLOSING_TAG
 };
@@ -108,69 +113,67 @@ HTMLElement *HTMLParser(string input)
   State state = STATE_INIT;
   HTMLElement *lastParent = root;
   string tagName = "";
+  string attributeName = "";
+  string attributeValue = "";
+  string href = "";
 
-  for (auto c : input)
-  {
-    if (c == '<')
-    {
+  for (auto c : input) {
+    if (c == '<') {
       state = STATE_START_TAG;
-    }
-    else if (state == STATE_START_TAG)
-    {
-      if (c == '/')
-      {
+    } else if (state == STATE_START_TAG) {
+      if (c == '/') {
         state = STATE_BEGIN_CLOSING_TAG;
-      }
-      else if (!isWhitespace(c))
-      {
+      } else if (!isWhitespace(c)) {
         state = STATE_READING_TAG;
         tagName = c;
       }
-    }
-    else if (state == STATE_READING_TAG)
-    {
-      if (isWhitespace(c))
-      {
-        state = STATE_READING_ATTRIBUTES;
-      }
-      else if (c == '>')
-      {
+    } else if (state == STATE_READING_TAG) {
+      if (isWhitespace(c)) {
+        state = STATE_READ_ATTRIBUTE_KEY;
+      } else if(c == '>') {
         state = STATE_END_TAG;
 
-        auto parent = new HTMLElement();
+        auto parent = new HTMLElement(); 
         parent->tagName = tagName;
         parent->parentElement = lastParent;
+        parent->href = href;
 
         lastParent->children.push_back(parent);
         lastParent = parent;
-      }
-      else
-      {
+      } else {
         tagName += c;
       }
-    }
-    else if (state == STATE_READING_ATTRIBUTES)
-    {
-      if (c == '>')
-      {
+    } else if(state == STATE_READ_ATTRIBUTE_KEY) {
+      if (c == '>') {
         state = STATE_END_TAG;
 
-        auto parent = new HTMLElement();
+        auto parent = new HTMLElement(); 
         parent->tagName = tagName;
         parent->parentElement = lastParent;
+        parent->href = href;
 
         lastParent->children.push_back(parent);
         lastParent = parent;
+      } else if (c == '"') {
+        state = STATE_READ_ATTRIBUTE_VALUE;
+      } else if (!isWhitespace(c) && c != '=') {
+        attributeName += c;
       }
-    }
-    else if (state == STATE_END_TAG)
-    {
+    } else if (state == STATE_READ_ATTRIBUTE_VALUE) {
+      if (c == '"') {
+        if (attributeName == "href") {
+          href = attributeValue;
+        }
+        attributeName = "";
+        attributeValue = "";
+        state = STATE_READ_ATTRIBUTE_KEY;
+      } else if (!isWhitespace(c)) {
+        attributeValue += c;
+      }
+    } else if (state == STATE_END_TAG) {
       lastParent->textContent += c;
-    }
-    else if (state == STATE_BEGIN_CLOSING_TAG)
-    {
-      if (c == '>')
-      {
+    } else if (state == STATE_BEGIN_CLOSING_TAG) {
+      if (c == '>') {
         lastParent = lastParent->parentElement;
       }
     }
@@ -181,7 +184,7 @@ HTMLElement *HTMLParser(string input)
 
 void recurse_html_elements(HTMLElement *el)
 {
-  nodes.push_back(new Node(el->tagName, el->textContent));
+  nodes.push_back(new Node(el->tagName, el->textContent, el->href));
 
   for (auto child : el->children)
   {
@@ -269,7 +272,7 @@ static int SDLCALL event_filter(void *userdata, SDL_Event *event)
       }
       if (node->x <= x && x <= node->x + node->w) {
         if (node->y <= y && y <= node->y + node->h) {
-          cout << "Y: "<< node->y << " TAG: " << node->tag << " TEXT: " << node->innerText << endl;
+          cout << "Y: "<< node->y << " TAG: " << node->tag << " HREF: " << node->href << endl;
           break;
         }
       }
