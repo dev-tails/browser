@@ -48,7 +48,7 @@ int line_index = 0;
 SDL_Window *window;
 SDL_Renderer *renderer;
 
-string url_address = "";
+string url_address = "https://devtails.xyz";
 string html_content;
 vector<Node *> nodes;
 
@@ -264,7 +264,6 @@ static int SDLCALL event_filter(void *userdata, SDL_Event *event)
 
     x *= 2;
     y *= 2;
-    cout << x << " " << y << endl;
 
     for (auto node : nodes) {
       if (node->tag != "a") {
@@ -272,7 +271,10 @@ static int SDLCALL event_filter(void *userdata, SDL_Event *event)
       }
       if (node->x <= x && x <= node->x + node->w) {
         if (node->y <= y && y <= node->y + node->h) {
-          cout << "Y: "<< node->y << " TAG: " << node->tag << " HREF: " << node->href << endl;
+          url_address = "https://devtails.xyz" + node->href;
+          y_offset = 0;
+          fetch_page(url_address);
+          render();
           break;
         }
       }
